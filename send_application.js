@@ -2,8 +2,10 @@ const { chromium } = require('playwright');
 const readline = require('readline');
 const fs = require('fs');
 const { answersDatabase, saveAnswer, handleNewQuestion, calculateSimilarity, getMostSimilarQuestion, normalizeAndTokenize } = require('./utils_Numeric.js');
-const { answerDropDown, handleNewAnswerDropDown } = require('./utils_DropDown');
+const { applyDatePostedFilter,answerDropDown, handleNewAnswerDropDown } = require('./utils_DropDown');
 const { answerBinaryQuestions, handleNewQuestionBinary} = require('./utils_Binary.js');
+console.log("applyDatePostedFilter is being imported correctly");
+//const { applyDatePostedFilter, answerDropDown } = require('./utils_DropDown');
 
 
 //------------------------------------------------1.Numeric response HANDLER-------------------------
@@ -183,8 +185,8 @@ async function getJobName(page) {
   
   //-----------------------------------1.Login-----------------------------------------------
   //1.Auto Login
-  await page.fill('input[name="session_key"]', 'tejmandaliya1666@gmail.com');
-  await page.fill('input[name="session_password"]', 'Tej@linkedin01');
+  await page.fill('input[name="session_key"]', 'thakkarnishit007@gmail.com');
+  await page.fill('input[name="session_password"]', 'nishit@18');
   await page.click('button[type="submit"]');
   
   //2.Maual Login
@@ -203,7 +205,8 @@ async function getJobName(page) {
   await page.getByRole('combobox', { name: 'Search by title, skill, or' }).click();
   await page.waitForTimeout(3000)
 
-  await page.getByRole('combobox', { name: 'Search by title, skill, or' }).fill('Data Engineer');
+  await page.getByRole('combobox', { name: 'Search by title, skill, or' }).fill('Data Analyst');
+ 
   await page.getByRole('combobox', { name: 'Search by title, skill, or' }).press('Enter');
   await page.waitForTimeout(5000)
 
@@ -211,6 +214,12 @@ async function getJobName(page) {
   //Select EASY APPLY FILTER BY DEFAULT
   await page.waitForSelector("//button[@aria-label='Easy Apply filter.']");
   await page.click("//button[@aria-label='Easy Apply filter.']");
+  
+  console.log("Applying filters...");
+  await applyDatePostedFilter(page); // Apply 'Date posted' filter (defined in utils_DropDown.js)
+
+  console.log("Answering dropdowns...");
+  await answerDropDown(page); // Handle dropdown questions (defined in utils_DropDown.js)
   
 
   console.log("Filter applied successfully ")
@@ -270,7 +279,7 @@ async function getJobName(page) {
     const emailLabel = await page.$('label:has-text("Email address")') || await page.$('label:has-text("Email")');
     if (emailLabel) {
       const emailInputId = await emailLabel.getAttribute('for');
-      await page.selectOption(`#${emailInputId}`, 'tejmandaliya1666@gmail.com');
+      await page.selectOption(`#${emailInputId}`, 'thakkarnishit007@gmail.com');
     }
 
     // 2.Attempt to select the phone country code from the dropdown
@@ -285,7 +294,7 @@ async function getJobName(page) {
     }
 
     // 3.Check for both possible phone labels and fill in the phone number
-    await fillPhoneNumber(page, '9737355760');
+    await fillPhoneNumber(page, '8866143135');
 
     // 4.Attach Resume
     //No need to attach resume every time its Auto Attached ; commented to reduce unnecessary WAIT
