@@ -211,9 +211,12 @@ async function getJobName(page) {
   await page.waitForTimeout(5000)
 
   //Action 2.Select FILTERS
+  
   //Select EASY APPLY FILTER BY DEFAULT
   await page.waitForSelector("//button[@aria-label='Easy Apply filter.']");
   await page.click("//button[@aria-label='Easy Apply filter.']");
+  
+  
   
   console.log("Applying filters...");
   await applyDatePostedFilter(page); // Apply 'Date posted' filter (defined in utils_DropDown.js)

@@ -47,18 +47,23 @@ async function answerDropDown(page) {
   }
 }
 
+
 // Function to apply the "Date Posted" filter
 async function applyDatePostedFilter(page) {
   try {
     // Wait for the "Date posted" button to appear and click it
     await page.waitForSelector("button[aria-label='Date posted filter. Clicking this button displays all Date posted filter options.']", { visible: true });
     await page.click("button[aria-label='Date posted filter. Clicking this button displays all Date posted filter options.']");
+    
     console.log("Date Posted filter clicked");
+
     // Wait for the "Past week" option and click it
-    await page.waitForTimeout(3000);
-    await page.waitForSelector("button[aria-label='Date posted filter. Past week filter is currently applied. Clicking this button displays all Date posted filter options.']", { visible: true, timeout: 60000 });
-    await page.click("button[aria-label='Date posted filter. Past week filter is currently applied. Clicking this button displays all Date posted filter options.']");
+    await page.waitForSelector("label[for='timePostedRange-r604800']", { visible: true });
+    await page.click("label[for='timePostedRange-r604800']");
+    
     console.log("Date Posted filter applied: Past week");
+    await page.waitForSelector("button[aria-label^='Apply current filter to show']", { visible: true });
+    await page.click("button[aria-label^='Apply current filter to show']");
   } catch (error) {
     console.error("Error applying the Date Posted filter:", error);
   }
@@ -87,12 +92,29 @@ async function handleNewAnswerDropDown(questionText, page) {
 }
 
 // Usage of both functions together
+// Usage of both functions together
 async function applyFiltersAndAnswerDropdowns(page) {
+  // Navigate to LinkedIn job search page
+  await page.goto("https://www.linkedin.com/jobs/");
+
+  // Enter search criteria
+  await page.fill("input[aria-label='Search jobs']", "Software Engineer");
+
+  // Click on the "All filters" button
+  await page.click("button[aria-label='All filters']");
+
+  // Click on the "Posted" filter and select "Past week"
+  await page.click("label[for='timePostedRange-r604800']");
+
   // Apply the "Date posted" filter
   await applyDatePostedFilter(page);
 
+  // Click on the "Easy Apply" filter
+  await page.click("label[for='f_EasyApply']");
+
   // Answer dropdowns
   await answerDropDown(page);
+  await page.waitForTimeout(6000);
 }
 
 module.exports = {
