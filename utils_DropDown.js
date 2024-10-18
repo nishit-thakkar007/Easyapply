@@ -56,7 +56,7 @@ async function applyDatePostedFilter(page) {
     await page.click("button[aria-label='Date posted filter. Clicking this button displays all Date posted filter options.']");
     
     console.log("Date Posted filter clicked");
-
+    
     // Wait for the "Past week" option and click it
     await page.waitForSelector("label[for='timePostedRange-r604800']", { visible: true });
     await page.click("label[for='timePostedRange-r604800']");
