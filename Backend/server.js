@@ -4,7 +4,12 @@ const cors = require('cors');
 const app = express();
 
 // Middleware to handle CORS and JSON request body
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000', // Frontend URL
+  methods: 'GET,POST',
+  allowedHeaders: 'Content-Type, Authorization'
+}));
+
 app.use(express.json());  // Add express.json() to handle JSON data in POST requests
 
 // MySQL database connection
@@ -77,23 +82,50 @@ app.post('/login', (req, res) => {
 });
 
 // Endpoint to handle submission of screening questions
-app.post('/screening-questions', (req, res) => {
+app.post('/screening-questions', async (req, res) => {
   const { question, answer, user_id } = req.body;
 
-  // Validate input
   if (!question || !answer || !user_id) {
     return res.status(400).json({ message: 'Please provide question, answer, and user_id' });
   }
 
-  // SQL query to insert the screening question into the database
-  const query = 'INSERT INTO screening_questions (question, answer, user_id) VALUES (?, ?, ?)';
-  
-  db.query(query, [question, answer, user_id], (err, result) => {
-    if (err) {
-      console.error('Error inserting screening question:', err);
-      return res.status(500).json({ message: 'Error saving screening question', error: err });
+  const checkUserQuery = 'SELECT * FROM users WHERE id = ?';
+  try {
+    const [userResult] = await db.promise().query(checkUserQuery, [user_id]);
+    if (userResult.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
     }
-    return res.status(200).json({ message: 'Screening question submitted successfully', result: result });
+
+    const query = 'INSERT INTO screening_questions (question, answer, user_id) VALUES (?, ?, ?)';
+    const [result] = await db.promise().query(query, [question, answer, user_id]);
+    res.status(200).json({ message: 'Screening question submitted successfully', result });
+  } catch (error) {
+    console.error('Error submitting screening question:', error);
+    res.status(500).json({ message: 'Error submitting screening question', error });
+  }
+});
+
+
+// New endpoint to fetch screening questions for a specific user
+app.get('/user-screening-questions/:user_id', (req, res) => {
+  const { user_id } = req.params;
+
+  if (!user_id) {
+    return res.status(400).json({ message: 'Please provide user ID' });
+  }
+
+  const query = 'SELECT * FROM screening_questions WHERE user_id = ?';
+  db.query(query, [user_id], (err, results) => {
+    if (err) {
+      console.error('Error fetching screening questions:', err);
+      return res.status(500).json({ message: 'Error fetching screening questions', error: err });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'No screening questions found for this user' });
+    }
+
+    return res.status(200).json(results);
   });
 });
 
