@@ -1,0 +1,120 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Application Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        .sidebar {
+            background-color: #1a1a2e;
+            color: white;
+            width: 250px;
+            height: 100vh;
+            padding: 20px;
+        }
+        .sidebar a {
+            color: #b5b5b5;
+            display: block;
+            padding: 10px 0;
+            text-decoration: none;
+        }
+        .sidebar a:hover, .sidebar a.active {
+            color: white;
+        }
+        .card {
+            background-color: #1a1a2e;
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px;
+            text-align: center;
+        }
+        .card-header {
+            background-color: #ff6f00;
+            border-radius: 10px 10px 0 0;
+            padding: 10px;
+            font-weight: bold;
+        }
+        .card-content {
+            padding: 20px;
+        }
+        .apply-btn {
+            background-color: #ff6f00;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+        .apply-btn:hover {
+            background-color: #e65c00;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div id="root"></div>
+    <script src="https://unpkg.com/react/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone/babel.min.js"></script>
+    <script type="text/babel">
+
+        const Sidebar = () => (
+            <div className="sidebar">
+                <div className="flex items-center mb-6">
+                    <img src="https://storage.googleapis.com/a1aa/image/Wf5BEw5gDgXLDad2N4erIUlzWHYQl2Cvux7dwAvCb0oQQEoTA.jpg" alt="Company Logo" className="mr-3" width="50" height="50" />
+                    <span className="text-xl font-bold">HELIX TECH-IT</span>
+                </div>
+                <div className="flex items-center mb-6">
+                    <img src="https://storage.googleapis.com/a1aa/image/avHBkUfmCftHbUv9A7vNnsd3zK3fOuDcgI0D9UoHBDpigIQnA.jpg" alt="User Avatar" className="rounded-full mr-3" width="50" height="50" />
+                    <span>Hello Yasaswi Koduri</span>
+                </div>
+                <a href="#" className="active">Dashboard</a>
+                <a href="#">Apply Job</a>
+                <a href="#">Screening Questions</a>
+                <a href="#">Applied Job</a>
+                <a href="#">Platform Credential</a>
+                <a href="#">Account Setting</a>
+                <a href="#">Logout</a>
+            </div>
+        );
+
+        const Card = ({ title, content }) => (
+            <div className="card">
+                <div className="card-header">{title}</div>
+                <div className="card-content">
+                    <p>{content}</p>
+                    <a href="#" className="apply-btn">Apply Here</a>
+                </div>
+            </div>
+        );
+
+        const App = () => (
+            <div className="flex">
+                <Sidebar />
+                <div className="flex-1 p-6">
+                    <div className="flex justify-between items-center mb-6">
+                        <h1 className="text-2xl font-bold">Apply Job</h1>
+                        <div className="relative">
+                            <input type="text" placeholder="Search.." className="p-2 rounded-full border border-gray-300" />
+                            <i className="fas fa-search absolute right-3 top-3 text-gray-500"></i>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                        <Card title="Linkedin" content="Linkedin is the world's largest professional network on the internet. You can use Linkedin to find the right job or internship." />
+                        <Card title="Glassdoor" content="Glassdoor is an American website where people search millions of jobs and get the inside scoop on companies with employee reviews." />
+                        <Card title="Indeed" content="Finding the best fit for the job shouldn't be a full-time job. Indeed's simple and powerful tools let you source, screen and hire faster." />
+                        <Card title="Dice" content="Linkedin is the world's largest professional network on the internet. You can use Linkedin to find the right job or internship." />
+                        <Card title="SimplyHired" content="Linkedin is the world's largest professional network on the internet. You can use Linkedin to find the right job or internship." />
+                        <Card title="ZipRecruiter" content="Linkedin is the world's largest professional network on the internet. You can use Linkedin to find the right job or internship." />
+                    </div>
+                </div>
+            </div>
+        );
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

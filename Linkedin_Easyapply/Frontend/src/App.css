@@ -1,0 +1,97 @@
+body {
+  font-family: 'Arial', sans-serif;
+}
+
+.sidebar {
+  background-color: #3b3f46;
+  color: white;
+  width: 250px;
+  height: 100vh;
+  padding: 20px;
+}
+
+.sidebar a {
+  color: #b5b5b5;
+  display: block;
+  padding: 10px 0;
+  text-decoration: none;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  color: white;
+}
+
+.card {
+  background-color: #3b3f46;
+  color: white;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 10px;
+  text-align: center;
+}
+
+.card-header {
+  background-color: #f5b301;
+  border-radius: 10px 10px 0 0;
+  padding: 10px;
+  font-weight: bold;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.apply-btn {
+  background-color: #f5b301;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+}
+
+.apply-btn:hover {
+  background-color: #f5b301;
+}
+
+.input {
+  padding: 10px;
+  margin: 10px 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.btn {
+  background-color: #f5b301;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-reset {
+  background-color: #999;
+}
+
+.btn:hover {
+  background-color: #e0a800;
+}
+
+.btn-edit, .btn-save {
+  background-color: #007bff;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.tab, .tab-active {
+  cursor: pointer;
+  padding: 10px;
+  background-color: #3b3f46;
+  border-radius: 5px;
+}
+
+.tab-active {
+  background-color: #007bff;
+}
