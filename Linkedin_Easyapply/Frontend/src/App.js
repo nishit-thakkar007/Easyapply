@@ -4,7 +4,8 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import ScreeningQuestions from './components/ScreeningQuestions';
 import Login from './components/login';
-import PlatformCredential from './components/PlatformCredential'; // Import the correct PlatformCredential component
+import PlatformCredential from './components/PlatformCredential';
+import ApplyHere from './components/ApplyHere'; // Import ApplyHere component
 
 const App = () => {
   const [data, setData] = useState([]);
@@ -57,6 +58,12 @@ const App = () => {
           <Route
             path="/platform-credential"
             element={isAuthenticated ? <PlatformCredential userId={user_id} /> : <Navigate to="/login" />}
+          />
+
+          {/* Apply Here Route */}
+          <Route
+            path="/apply-here"
+            element={isAuthenticated ? <ApplyHere userId={user_id} /> : <Navigate to="/login" />}
           />
 
           {/* Default Route */}

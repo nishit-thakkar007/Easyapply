@@ -30,36 +30,42 @@ function PlatformCredential() {
     };
 
     // Submit new credential to the API
-    const submitCredential = () => {
+    const submitCredential = async () => {
         const { platform, email, password } = formData;
 
+        // Validate fields
         if (!email || !password) {
-            alert('Please fill out all fields.');
+            setError('Please fill out all fields.');
             return;
         }
 
         if (!user) {
-            alert('User is not logged in or user ID not found.');
+            setError('User is not logged in or user ID not found.');
             return;
         }
 
         setLoading(true);
+        setError('');
 
-        axios.post('http://localhost:8081/add-credential', {
-            platform,
-            email,
-            password,
-            user_id: user.id,
-        })
-        .then(() => {
+        try {
+            // Use dynamic backend URL
+            const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8081';
+
+            // API call to store the credentials
+            await axios.post(`${backendUrl}/add-credential`, {
+                platform,
+                email,
+                password,
+                user_id: user.id,
+            });
+
             alert('Credential submitted successfully.');
-            resetFields();
-            setLoading(false);
-        })
-        .catch(() => {
+            resetFields(); // Reset the form after successful submission
+        } catch (error) {
             setError('Failed to submit credential. Please try again.');
+        } finally {
             setLoading(false);
-        });
+        }
     };
 
     // Reset input fields
@@ -69,6 +75,7 @@ function PlatformCredential() {
             email: '',
             password: ''
         });
+        setError('');
     };
 
     return (
@@ -120,7 +127,7 @@ function PlatformCredential() {
 
                         <div className="flex justify-between mt-4">
                             <button onClick={submitCredential} className="bg-blue-500 text-white px-4 py-2 rounded" disabled={loading}>
-                                Submit Credential
+                                {loading ? 'Submitting...' : 'Submit Credential'}
                             </button>
                             <button
                                 onClick={resetFields}

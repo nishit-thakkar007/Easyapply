@@ -12,7 +12,7 @@ const ScreeningQuestions = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editingIndex, setEditingIndex] = useState(null);
-
+  
   const predefinedQuestions = [
     "What makes a job fun and motivating for you?",
     "How do you typically manage projects and prioritize tasks?",
@@ -21,7 +21,28 @@ const ScreeningQuestions = () => {
     "Are you willing to forfeit my foreign passport and renounce my foreign citizenship, if required?",
     "Are you willing to be sponsored for a US government security clearance?",
     "Do you like to receive email notifications about new jobs?",
+    "Are you legally authorized to work in the USA?",
+    "Are you comfortable commuting to this job's location?",
+    "Are you comfortable working in an onsite setting?",
+    "Have you completed the following level of education: Bachelor's Degree?",
+    "Are you willing to undergo a background check, in accordance with local law/regulations?",
+    "Are you comfortable working in a hybrid setting?",
+    "We must fill this position urgently. Can you start immediately?",
+    "Do you have a valid driver's license?",
+    "Are you amenable to work in-office/onsite from Monday to Friday?",
+    "How many years of work experience do you have?",
+    "Where is your current residence located?",
+    "Educational qualifications",
+    "What is your expected starting salary?",
+    "Are you comfortable working in a remote setting?",
+    "What is your level of proficiency in English?",
+    "Will you be able to join within 20 days?",
+    "Notice Period less than 30 days",
+    "Must have at least 5 years experience in writing SQL queries.",
+    "Must have at least 5 years experience in Azure Data Engineering.",
+    "Do you have Databricks certifications?",
   ];
+
 
   const fetchUserQuestions = (userId) => {
     setLoading(true);
@@ -29,10 +50,9 @@ const ScreeningQuestions = () => {
       .then(response => {
         setQuestions(response.data || []);
         setLoading(false);
-        setError('');
       })
-      .catch(() => {
-        setError('Failed to load user questions.');
+      .catch(err => {
+        setError('Failed to load user questions: ' + err.message);
         setLoading(false);
       });
   };
@@ -75,40 +95,34 @@ const ScreeningQuestions = () => {
 
     setLoading(true);
 
-    if (editingIndex !== null) {
-      const id = questions[editingIndex].id;
-      axios.put('http://localhost:8081/screening-questions/answer', { id, answer: answerInput })
-        .then(() => {
+    const apiUrl = editingIndex !== null 
+      ? 'http://localhost:8081/screening-questions/answer' 
+      : 'http://localhost:8081/screening-questions';
+
+    const method = editingIndex !== null ? 'put' : 'post';
+    const data = editingIndex !== null 
+      ? { id: questions[editingIndex].id, answer: answerInput } 
+      : { question, answer: answerInput, user_id: user.id };
+
+    axios[method](apiUrl, data)
+      .then(response => {
+        if (editingIndex !== null) {
           const updatedQuestions = [...questions];
           updatedQuestions[editingIndex] = { ...updatedQuestions[editingIndex], answer: answerInput };
           setQuestions(updatedQuestions);
-          resetFields();
           alert('Answer updated successfully.');
-          setLoading(false);
-          setError('');
-        })
-        .catch(() => {
-          setError('Failed to update answer. Please try again.');
-          setLoading(false);
-        });
-    } else {
-      axios.post('http://localhost:8081/screening-questions', {
-        question,
-        answer: answerInput,
-        user_id: user.id,
-      })
-      .then(response => {
-        setQuestions(prevQuestions => [...prevQuestions, { id: response.data.result.insertId, question, answer: answerInput }]);
+        } else {
+          setQuestions(prevQuestions => [...prevQuestions, { id: response.data.result.insertId, question, answer: answerInput }]);
+          alert('Question saved successfully');
+        }
         resetFields();
-        alert('Answer submitted successfully.');
-        setLoading(false);
-        setError('');
       })
-      .catch(() => {
-        setError('Failed to submit answer. Please try again.');
+      .catch(err => {
+        setError('Error saving question: ' + err.message);
+      })
+      .finally(() => {
         setLoading(false);
       });
-    }
   };
 
   const editAnswer = (index) => {
@@ -179,15 +193,13 @@ const ScreeningQuestions = () => {
             />
 
             <div className="flex justify-between mt-4">
-              {loading ? (
-                <button className="bg-gray-400 text-white px-4 py-2 rounded" disabled>
-                  Loading...
-                </button>
-              ) : (
-                <button onClick={submitAnswer} className="bg-blue-500 text-white px-4 py-2 rounded">
-                  {editingIndex !== null ? 'Update Answer' : 'Submit Answer'}
-                </button>
-              )}
+              <button
+                onClick={submitAnswer}
+                className={`bg-${loading ? 'gray-400' : 'blue-500'} text-white px-4 py-2 rounded`}
+                disabled={loading}
+              >
+                {loading ? 'Loading...' : (editingIndex !== null ? 'Update Answer' : 'Submit Answer')}
+              </button>
               <button
                 onClick={resetFields}
                 className="bg-gray-500 text-white px-4 py-2 rounded"

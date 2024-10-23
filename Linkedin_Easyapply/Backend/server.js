@@ -189,6 +189,34 @@ app.post('/add-credential', (req, res) => {
     });
   });
 });
+
+
+
+// Endpoint to get user credentials and job preferences
+app.get('/user/:id/data', (req, res) => {
+  const { id } = req.params;
+
+  const query = `
+      SELECT u.email, u.password, u.phone, j.job_title, s.question, s.answer 
+      FROM users u
+      LEFT JOIN job_preferences j ON u.id = j.user_id
+      LEFT JOIN screening_questions s ON u.id = s.user_id
+      WHERE u.id = ?
+  `;
+
+  db.query(query, [id], (err, results) => {
+      if (err) {
+          console.error('Error fetching user data:', err);
+          return res.status(500).json({ message: 'Error fetching user data' });
+      }
+      if (results.length === 0) {
+          return res.status(404).json({ message: 'User not found' });
+      }
+      res.status(200).json(results);
+  });
+});
+
+
 // Server listening on port 8081
 app.listen(8081, () => {
   console.log("Server is listening on port 8081");

@@ -26,7 +26,7 @@ const Sidebar = () => (
         {/* Sidebar Navigation Links */}
         <nav>
             <Link to="/dashboard" className="sidebar-link">Dashboard</Link>
-            <Link to="/apply-job" className="sidebar-link">Apply Job</Link>
+            <Link to="/apply-here" className="sidebar-link">Apply Job</Link>
             <Link to="/screening-questions" className="sidebar-link">Screening Questions</Link>
             <Link to="/applied-job" className="sidebar-link">Applied Job</Link>
             <Link to="/platform-credential" className="sidebar-link">Platform Credential</Link>
