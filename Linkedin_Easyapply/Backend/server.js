@@ -1,6 +1,7 @@
 const express = require('express');
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const cors = require('cors');
+const { startJobApplicationAutomation } = require('./send_application'); // Import Playwright automation function
 const app = express();
 
 // Middleware to handle CORS and JSON request body
@@ -10,7 +11,7 @@ app.use(cors({
   allowedHeaders: 'Content-Type, Authorization'
 }));
 
-app.use(express.json());  // Add express.json() to handle JSON data in POST requests
+app.use(express.json());  // Handle JSON data in POST requests
 
 // MySQL database connection
 const db = mysql.createConnection({
@@ -31,19 +32,17 @@ db.connect((err) => {
 
 // Test route
 app.get('/', (req, res) => {
-  return res.json("From Backend Side");
+  return res.json("Backend is running.");
 });
 
 // Endpoint to handle login (POST)
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
 
-  // Validate input
   if (!email || !password) {
-    return res.status(400).json({ message: 'Please provide both email and password' });
+    return res.status(400).json({ message: 'Please provide both email and password.' });
   }
 
-  // Query to check if the email exists
   const query = 'SELECT * FROM users WHERE email = ?';
   db.query(query, [email], (err, results) => {
     if (err) {
@@ -52,18 +51,13 @@ app.post('/login', (req, res) => {
     }
 
     if (results.length === 0) {
-      // User not found
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
     const user = results[0];
-
-    // Compare the plain text password with the one stored in the database
     if (user.password === password) {
-      // Password matches, send success response
-      res.status(200).json({ message: 'Login successful', user: user });
+      res.status(200).json({ message: 'Login successful', user });
     } else {
-      // Invalid password
       res.status(401).json({ message: 'Invalid credentials' });
     }
   });
@@ -74,7 +68,7 @@ app.post('/screening-questions', (req, res) => {
   const { question, answer, user_id } = req.body;
 
   if (!question || !answer || !user_id) {
-    return res.status(400).json({ message: 'Please provide question, answer, and user_id' });
+    return res.status(400).json({ message: 'Please provide question, answer, and user_id.' });
   }
 
   const checkUserQuery = 'SELECT * FROM users WHERE id = ?';
@@ -85,7 +79,7 @@ app.post('/screening-questions', (req, res) => {
     }
 
     if (userResult.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found.' });
     }
 
     const query = 'INSERT INTO screening_questions (question, answer, user_id) VALUES (?, ?, ?)';
@@ -95,7 +89,7 @@ app.post('/screening-questions', (req, res) => {
         return res.status(500).json({ message: 'Error submitting screening question', error: err });
       }
 
-      res.status(200).json({ message: 'Screening question submitted successfully', result });
+      res.status(200).json({ message: 'Screening question submitted successfully.', result });
     });
   });
 });
@@ -105,7 +99,7 @@ app.get('/user-screening-questions/:user_id', (req, res) => {
   const { user_id } = req.params;
 
   if (!user_id) {
-    return res.status(400).json({ message: 'Please provide user ID' });
+    return res.status(400).json({ message: 'Please provide user ID.' });
   }
 
   const query = 'SELECT * FROM screening_questions WHERE user_id = ?';
@@ -116,42 +110,42 @@ app.get('/user-screening-questions/:user_id', (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: 'No screening questions found for this user' });
+      return res.status(404).json({ message: 'No screening questions found for this user.' });
     }
 
     return res.status(200).json(results);
   });
 });
 
-// New endpoint to update answer of a screening question (PUT)
+// Endpoint to update the answer of a screening question (PUT)
 app.put('/screening-questions/answer', (req, res) => {
   const { id, answer } = req.body;
 
   if (!id || !answer) {
-    return res.status(400).json({ message: 'Please provide id and answer' });
+    return res.status(400).json({ message: 'Please provide id and answer.' });
   }
 
   const checkQuestionQuery = 'SELECT * FROM screening_questions WHERE id = ?';
   db.query(checkQuestionQuery, [id], (err, results) => {
     if (err) {
-      return res.status(500).json({ message: 'Error checking screening question' });
+      return res.status(500).json({ message: 'Error checking screening question.' });
     }
 
     if (results.length === 0) {
-      return res.status(404).json({ message: 'Screening question not found for this id' });
+      return res.status(404).json({ message: 'Screening question not found for this id.' });
     }
 
     const updateQuery = 'UPDATE screening_questions SET answer = ? WHERE id = ?';
     db.query(updateQuery, [answer, id], (err, result) => {
       if (err) {
-        return res.status(500).json({ message: 'Error updating screening question answer' });
+        return res.status(500).json({ message: 'Error updating screening question answer.' });
       }
 
       if (result.affectedRows === 0) {
-        return res.status(500).json({ message: 'Failed to update screening question answer' });
+        return res.status(500).json({ message: 'Failed to update screening question answer.' });
       }
 
-      res.status(200).json({ message: 'Screening question answer updated successfully' });
+      res.status(200).json({ message: 'Screening question answer updated successfully.' });
     });
   });
 });
@@ -160,12 +154,10 @@ app.put('/screening-questions/answer', (req, res) => {
 app.post('/add-credential', (req, res) => {
   const { user_id, platform, email, password } = req.body;
 
-  // Validate input
   if (!user_id || !platform || !email || !password) {
-    return res.status(400).json({ message: 'Please provide user_id, platform, email, and password' });
+    return res.status(400).json({ message: 'Please provide user_id, platform, email, and password.' });
   }
 
-  // Check if user exists
   const checkUserQuery = 'SELECT * FROM users WHERE id = ?';
   db.query(checkUserQuery, [user_id], (err, userResult) => {
     if (err) {
@@ -174,10 +166,9 @@ app.post('/add-credential', (req, res) => {
     }
 
     if (userResult.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: 'User not found.' });
     }
 
-    // Insert credential into the credentials table
     const query = 'INSERT INTO user_credentials (user_id, platform, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())';
     db.query(query, [user_id, platform, email, password], (err, result) => {
       if (err) {
@@ -185,12 +176,10 @@ app.post('/add-credential', (req, res) => {
         return res.status(500).json({ message: 'Error submitting credential', error: err });
       }
 
-      res.status(200).json({ message: 'Credential added successfully', result });
+      res.status(200).json({ message: 'Credential added successfully.', result });
     });
   });
 });
-
-
 
 // Endpoint to get user credentials and job preferences
 app.get('/user/:id/data', (req, res) => {
@@ -207,13 +196,81 @@ app.get('/user/:id/data', (req, res) => {
   db.query(query, [id], (err, results) => {
       if (err) {
           console.error('Error fetching user data:', err);
-          return res.status(500).json({ message: 'Error fetching user data' });
+          return res.status(500).json({ message: 'Error fetching user data.' });
       }
       if (results.length === 0) {
-          return res.status(404).json({ message: 'User not found' });
+          return res.status(404).json({ message: 'User not found.' });
       }
       res.status(200).json(results);
   });
+});
+
+// Endpoint to handle job applications (POST)
+app.post('/job-apply', (req, res) => {
+  const { jobTitle, jobLocation, experience, numOfApplications, excludeKeywords, userId } = req.body;
+
+  if (!jobTitle || !jobLocation || !experience || !numOfApplications || !userId) {
+    return res.status(400).json({ message: 'Please provide all required fields.' });
+  }
+
+  const query = 'INSERT INTO job_applications (job_title, job_location, experience, num_of_applications, exclude_keywords, user_id) VALUES (?, ?, ?, ?, ?, ?)';
+  db.query(query, [jobTitle, jobLocation, experience, numOfApplications, excludeKeywords, userId], (err, result) => {
+    if (err) {
+      console.error('Error submitting job application:', err);
+      return res.status(500).json({ message: 'Error submitting job application', error: err });
+    }
+
+    res.status(200).json({ message: 'Job application submitted successfully.', result });
+  });
+});
+
+// Route to trigger Playwright automation
+app.post('/start-playwright', async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ message: 'Please provide user ID.' });
+  }
+
+  try {
+    // Fetch credentials from user_credentials table
+    const credentialsQuery = 'SELECT platform, email, password FROM user_credentials WHERE user_id = ?';
+    const [credentials] = await db.promise().query(credentialsQuery, [userId]);
+
+    if (credentials.length === 0) {
+      return res.status(404).json({ message: 'Credentials not found.' });
+    }
+
+    // Fetch job application data from job_applications table
+    const jobAppQuery = 'SELECT job_title, job_location, experience FROM job_applications WHERE user_id = ?';
+    const [jobAppData] = await db.promise().query(jobAppQuery, [userId]);
+
+    if (jobAppData.length === 0) {
+      return res.status(404).json({ message: 'Job application data not found.' });
+    }
+
+    // Fetch screening questions from screening_questions table
+    const screenQQuery = 'SELECT question, answer FROM screening_questions WHERE user_id = ?';
+    const [screenQData] = await db.promise().query(screenQQuery, [userId]);
+
+    // Prepare data to be passed to Playwright
+    const userData = {
+      email: credentials[0].email,
+      password: credentials[0].password,
+      jobTitle: jobAppData[0].job_title,
+      jobLocation: jobAppData[0].job_location,
+      experience: jobAppData[0].experience,
+      questionsAndAnswers: screenQData
+    };
+
+    // Trigger Playwright automation
+    await startJobApplicationAutomation(userData);  
+    res.status(200).json({ message: 'Job application automation started successfully!' });
+
+  } catch (error) {
+    console.error('Error in automation:', error);
+    res.status(500).json({ message: 'Automation failed', error: error.message });
+  }
 });
 
 

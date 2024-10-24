@@ -17,8 +17,9 @@
     "express": "^4.21.1",
     "fs": "^0.0.1-security",
     "mysql": "^2.18.1",
+    "mysql2": "^3.11.3",
     "natural": "^7.1.0",
-    "playwright": "^1.47.2",
+    "playwright": "^1.48.1",
     "playwright-chromium": "^1.44.1"
   },
   "devDependencies": {
