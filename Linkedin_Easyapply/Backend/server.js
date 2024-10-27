@@ -227,54 +227,30 @@ app.post('/job-apply', (req, res) => {
 // Route to trigger Playwright automation
 app.post('/start-playwright', async (req, res) => {
   const { userId } = req.body;
-
-  if (!userId) {
-    return res.status(400).json({ message: 'Please provide user ID.' });
-  }
+  if (!userId) return res.status(400).json({ message: 'Please provide user ID.' });
 
   try {
-    // Fetch credentials from user_credentials table
-    const credentialsQuery = 'SELECT platform, email, password FROM user_credentials WHERE user_id = ?';
-    const [credentials] = await db.promise().query(credentialsQuery, [userId]);
+    const [credentials] = await db.promise().query('SELECT email, password FROM user_credentials WHERE user_id = ?', [userId]);
+    const [jobAppData] = await db.promise().query('SELECT job_title, job_location, experience FROM job_applications WHERE user_id = ?', [userId]);
+    const [screenQData] = await db.promise().query('SELECT question, answer FROM screening_questions WHERE user_id = ?', [userId]);
 
-    if (credentials.length === 0) {
-      return res.status(404).json({ message: 'Credentials not found.' });
-    }
-
-    // Fetch job application data from job_applications table
-    const jobAppQuery = 'SELECT job_title, job_location, experience FROM job_applications WHERE user_id = ?';
-    const [jobAppData] = await db.promise().query(jobAppQuery, [userId]);
-
-    if (jobAppData.length === 0) {
-      return res.status(404).json({ message: 'Job application data not found.' });
-    }
-
-    // Fetch screening questions from screening_questions table
-    const screenQQuery = 'SELECT question, answer FROM screening_questions WHERE user_id = ?';
-    const [screenQData] = await db.promise().query(screenQQuery, [userId]);
-
-    // Prepare data to be passed to Playwright
     const userData = {
       email: credentials[0].email,
       password: credentials[0].password,
       jobTitle: jobAppData[0].job_title,
       jobLocation: jobAppData[0].job_location,
       experience: jobAppData[0].experience,
-      questionsAndAnswers: screenQData
+      screeningQuestions: screenQData
     };
 
-    // Trigger Playwright automation
-    await startJobApplicationAutomation(userData);  
+    await startJobApplicationAutomation(userData);
     res.status(200).json({ message: 'Job application automation started successfully!' });
-
   } catch (error) {
     console.error('Error in automation:', error);
     res.status(500).json({ message: 'Automation failed', error: error.message });
   }
 });
 
-
-// Server listening on port 8081
 app.listen(8081, () => {
   console.log("Server is listening on port 8081");
 });

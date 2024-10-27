@@ -5,9 +5,10 @@ import '../App.css'; // Ensure this path is correct based on your folder structu
 
 const ApplyHere = () => {
   const [formData, setFormData] = useState({
-    jobLocation: 'India',
-    experience: '0',
-    numOfApplications: '1',
+    jobTitle: 'Data Analyst',
+    jobLocation: 'USA',
+    experience: '2',
+    numOfApplications: '10',
     excludeKeywords: 'software, manager, devops, architect',
   });
   const [user, setUser] = useState(null); // User state for authentication
@@ -31,7 +32,7 @@ const ApplyHere = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // Function to submit job application
+  // Function to submit job application and start automation
   const handleMainSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -45,19 +46,20 @@ const ApplyHere = () => {
     }
 
     const applicationData = {
+      userId: user.id,
       jobTitle: formData.jobTitle,
       jobLocation: formData.jobLocation,
       experience: formData.experience,
       numOfApplications: formData.numOfApplications,
       excludeKeywords: formData.excludeKeywords,
-      userId: user.id, // Make sure user ID is part of the application
     };
 
     try {
-      // Make a request to the backend to trigger Playwright automation
+      // Make a request to the backend to insert the job application data and start Playwright automation
       const response = await axios.post('http://localhost:8081/start-playwright', applicationData);
       console.log('Response from server:', response);
       setMessage('Job application submitted successfully and automation started!');
+
       handleReset(); // Reset the form after successful submission
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Failed to apply for the job. Please try again.';
@@ -72,7 +74,7 @@ const ApplyHere = () => {
   // Function to reset the form fields
   const handleReset = () => {
     setFormData({
-      jobTitle: 'DevOps Engineer',
+      jobTitle: 'Data Analyst',
       jobLocation: 'India',
       experience: '0',
       numOfApplications: '1',
